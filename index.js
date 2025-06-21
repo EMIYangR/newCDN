@@ -72,9 +72,9 @@ function getWinner() {
     if (getLeftWinStatus() === getrightWinStatus()) {
         return '';
     } else if (getLeftWinStatus()) {
-        return getWhoChooseBlueside() ? 1 : 2;
-    } else if (getrightWinStatus()) {
         return getWhoChooseBlueside() ? 2 : 1;
+    } else if (getrightWinStatus()) {
+        return getWhoChooseBlueside() ? 1 : 2;
     }
 }
 
