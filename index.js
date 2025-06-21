@@ -1,17 +1,11 @@
-import { dataArray } from 'https://cdn.jsdmirror.com/gh/EMIYangR/tmcdn/data.js';
+import { dataArray } from 'https://cdn.jsdmirror.com/gh/EMIYangR/newCDN/data.js';
 
 $(document).ready(function () {
-    // 确保字典数据已加载
-    if (!Array.isArray(dataArray)) { console.error('字典数据未正确加载，请检查data.js文件路径和内容。'); }
-
-    // 确保字典数据已加载
-    if (dataArray.length === 0) { console.error('字典数据为空，请检查data.js文件内容。'); }
-
     getPrint();
     // 监听每个游戏列表的点击事件
     $(document).on('click', '#every-game-list li', function () {
         if (typeof getPrint === 'function') {
-            getPrint();
+            setTimeout(getPrint, 1500); // 增加1.5s延时确保页面刷新了内容
         }
     });
 });
@@ -75,8 +69,7 @@ function getrightWinStatus() {
 }
 
 function getWinner() {
-    console.log(getLeftWinStatus(), getrightWinStatus());
-    if (!getLeftWinStatus() && !getrightWinStatus()) {
+    if (getLeftWinStatus() === getrightWinStatus()) {
         return '';
     } else if (getLeftWinStatus()) {
         return getWhoChooseBlueside() ? 1 : 2;
@@ -102,7 +95,7 @@ function getPrint() {
     let getSide = ""; // 默认左侧为蓝色方
     let team1side, team2side, t1h, t2h, t1b, t2b;
     let winner = getWinner();
-    winner === '' ? length = '': length = length;
+    winner === '' ? length = '' : length = length;
 
     // 按heroImgs顺序，查找gl3ImgAltDict的值
     let pickAlts = allPickBySide.map(filename => allPick4Dict[filename] || '');
@@ -155,4 +148,3 @@ function getPrint() {
     ].join('\n');
     console.log(result);
 }
-
