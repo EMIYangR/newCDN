@@ -1,8 +1,9 @@
-import { dataArray } from 'https://cdn.jsdmirror.com/gh/EMIYangR/newCDN/data.js';
+// import { dataArray } from 'https://cdn.jsdmirror.com/gh/EMIYangR/newCDN/data.js';
+import { dataArray } from 'http://127.0.0.1:5501/data.js';
 
 $(document).ready(function () {
     getPrint();
-    // 监听每个游戏列表的点击事件
+
     $(document).on('click', '#every-game-list li', function () {
         if (typeof getPrint === 'function') {
             setTimeout(getPrint, 1500); // 增加1.5s延时确保页面刷新了内容
@@ -10,19 +11,32 @@ $(document).ready(function () {
     });
 });
 
-// 提取所有banbp5下img的alt值（左右两边可能有多个）
+
 function getBans() {
+    const rightBanbp4 = document.querySelector('.gradual-right .gl2.banbp4.clearfix');
+    let rightSelector;
+    if (rightBanbp4 && /display\s*:\s*none/.test(rightBanbp4.getAttribute('style') || '')) {
+        rightSelector = '.gradual-right .banbp5';
+    } else {
+        rightSelector = '.gradual-right .banbp4';
+    }
+
+    const leftBanbp4 = document.querySelector('.gradual-left .gl2.banbp4.clearfix');
+    let leftSelector;
+    if (leftBanbp4 && /display\s*:\s*none/.test(leftBanbp4.getAttribute('style') || '')) {
+        leftSelector = '.gradual-left .banbp5';
+    } else {
+        leftSelector = '.gradual-left .banbp4';
+    }
     const getAlts = selector =>
-        Array.from(document.querySelectorAll(selector)).flatMap(banbp5 =>
-            Array.from(banbp5.querySelectorAll('img')).map(img => img.alt)
+        Array.from(document.querySelectorAll(selector)).flatMap(banbp => Array.from(banbp.querySelectorAll('img')).map(img => img.alt)
         );
     return {
-        leftAlts: getAlts('.gradual-left .banbp5'),
-        rightAlts: getAlts('.gradual-right .banbp5')
+        leftAlts: getAlts(leftSelector),
+        rightAlts: getAlts(rightSelector)
     };
 }
 
-// 提取所有tb-box types-show-box下c-img的第一个img链接最后一部分，若长度大于8则舍去
 function getPicksBySide() {
     return Array.from(document.querySelectorAll('.tb-box.types-show-box .c-img img:first-child'))
         .map(img => {
@@ -32,7 +46,6 @@ function getPicksBySide() {
         .filter(Boolean);
 }
 
-// 提取所有gl3-img下img的src链接最后一部分和alt值，返回一个字典
 function getPicksNameDict() {
     const dict = {};
     document.querySelectorAll('.gl3-img img').forEach(img => {
@@ -48,6 +61,11 @@ function getTopLeftImgSrcFilename() {
         return img.getAttribute('src').split('/').pop();
     }
     return '';
+}
+
+function checkUB() {
+    const el = document.querySelector('.main-context > .null-gradual');
+    return el ? /display\s*:\s*block/.test(el.getAttribute('style') || '') : false;
 }
 
 function getFirstTeamImgFilename() {
@@ -87,7 +105,6 @@ function getLength() {
 }
 
 function getPrint() {
-    // 获取所有需要的元素和数据
     let allBans = getBans();
     let allPick4Dict = getPicksNameDict();
     let allPickBySide = getPicksBySide();
@@ -137,14 +154,25 @@ function getPrint() {
         t2b = allBans.leftAlts;
     }
 
-    let result = [
+    let result = [];
+    // 判断ban数，动态输出ban行
+    function formatBans(bans, team) {
+        if (bans.length === 4) {
+            return `        |${team}b1=${bans[0] || ''} |${team}b2=${bans[1] || ''} |${team}b3=${bans[2] || ''} |${team}b4=${bans[3] || ''} `;
+        } else {
+            // 通常其余情况下为5个，但是如果支持早期3bans版本，则需要额外处理
+            return `        |${team}b1=${bans[0] || ''} |${team}b2=${bans[1] || ''} |${team}b3=${bans[2] || ''} |${team}b4=${bans[3] || ''} |${team}b5=${bans[4] || ''}`;
+        }
+    }
+
+    result = [
         `        |team1side=${team1side} |team2side=${team2side} |length=${length} |winner=${winner}`,
         '        <!-- Hero picks -->',
         `        |t1h1=${t1h[0] || ''} |t1h2=${t1h[1] || ''} |t1h3=${t1h[2] || ''} |t1h4=${t1h[3] || ''} |t1h5=${t1h[4] || ''}`,
         `        |t2h1=${t2h[0] || ''} |t2h2=${t2h[1] || ''} |t2h3=${t2h[2] || ''} |t2h4=${t2h[3] || ''} |t2h5=${t2h[4] || ''}`,
         '        <!-- Hero bans -->',
-        `        |t1b1=${t1b[0] || ''} |t1b2=${t1b[1] || ''} |t1b3=${t1b[2] || ''} |t1b4=${t1b[3] || ''} |t1b5=${t1b[4] || ''}`,
-        `        |t2b1=${t2b[0] || ''} |t2b2=${t2b[1] || ''} |t2b3=${t2b[2] || ''} |t2b4=${t2b[3] || ''} |t2b5=${t2b[4] || ''}`
+        formatBans(t1b, 't1'),
+        formatBans(t2b, 't2')
     ].join('\n');
-    console.log(result);
+    if (checkUB()) { console.log('巅峰对决, 请手动填写BP'); } else { console.log(result); }
 }
