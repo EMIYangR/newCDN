@@ -1,5 +1,4 @@
-// import { dataArray } from 'https://cdn.jsdmirror.com/gh/EMIYangR/newCDN/data.js';
-import { dataArray } from 'http://127.0.0.1:5501/data.js';
+import { dataArray } from 'https://cdn.jsdmirror.com/gh/EMIYangR/newCDN/data.js';
 
 $(document).ready(function () {
     getPrint();
